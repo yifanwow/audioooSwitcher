@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "dgSpecHash": "j4LzDJe3vNE=",
+  "success": true,
+  "projectFilePath": "F:\\Program\\Github-Project-Local\\audioooSwitcher\\AudioSwitcherApp\\AudioSwitcherApp.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\yifan\\.nuget\\packages\\audioswitcher.audioapi\\3.0.0\\audioswitcher.audioapi.3.0.0.nupkg.sha512",
+    "C:\\Users\\yifan\\.nuget\\packages\\audioswitcher.audioapi.coreaudio\\3.0.3\\audioswitcher.audioapi.coreaudio.3.0.3.nupkg.sha512",
+    "C:\\Users\\yifan\\.nuget\\packages\\photino.native\\2.6.0\\photino.native.2.6.0.nupkg.sha512",
+    "C:\\Users\\yifan\\.nuget\\packages\\photino.net\\2.6.0\\photino.net.2.6.0.nupkg.sha512"
+  ],
+  "logs": []
+}
