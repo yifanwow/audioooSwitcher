@@ -1,0 +1,145 @@
+:root {
+    --bg-dark: #1C1C1E;
+    --bg-container: #2C2C2E;
+    --list-bg: #3A3A3C;
+    --accent-blue: #0A84FF;
+    --text-light: #E5E5E5;
+    --border-color: #48484a;
+    --hover-bg: #48484a;
+}
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-light);
+    user-select: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    overflow: hidden;
+    transition: background-color 0.3s;
+}
+.container-wrapper {
+    background-color: var(--bg-container);
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    width: 100%;
+    max-width: 500px;
+    padding: 24px;
+    transition: all 0.3s;
+}
+#list-container {
+    background-color: var(--list-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    max-height: 300px;
+    overflow-y: auto;
+    margin-top: 16px;
+    padding: 4px;
+}
+#list-container::-webkit-scrollbar {
+    width: 6px;
+}
+#list-container::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+}
+#list-container::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+}
+.device-item-label {
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.15s;
+    border-radius: 6px;
+}
+.device-item-label:hover {
+    background-color: var(--hover-bg);
+}
+.device-item-label:active {
+    background-color: #555555;
+}
+.device-checkbox {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid #58585a;
+    border-radius: 4px;
+    margin-right: 15px;
+    cursor: pointer;
+    position: relative;
+    background-color: #2c2c2e;
+    flex-shrink: 0;
+    transition: all 0.2s;
+}
+.device-checkbox:checked {
+    background-color: var(--accent-blue);
+    border-color: var(--accent-blue);
+}
+.device-checkbox:checked::before {
+    content: '✓';
+    color: white;
+    font-size: 14px;
+    position: absolute;
+    top: -2px;
+    left: 2px;
+    font-weight: bold;
+}
+#btn-gen {
+    background-color: var(--accent-blue);
+    color: white;
+    transition: background-color 0.2s, opacity 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 6px rgba(10, 132, 255, 0.4);
+    font-weight: 500;
+}
+#btn-gen:hover:not(:disabled) {
+    background-color: #2B95FF;
+}
+#btn-gen:active:not(:disabled) {
+    background-color: #0077E6;
+    box-shadow: none;
+}
+#btn-gen:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background-color: var(--accent-blue);
+    box-shadow: none;
+}
+.spin-animation {
+    animation: spin 1s linear infinite;
+}
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+.modal-content {
+    background-color: var(--bg-container);
+    color: var(--text-light);
+    border-radius: 12px;
+    padding: 24px;
+    width: 300px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    animation: fadeIn 0.3s;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
