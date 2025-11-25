@@ -28,3 +28,5 @@ F:\Program\Github-Project-Local\audioooSwitcher\AudioSwitcherApp\obj\Debug\net8.
 F:\Program\Github-Project-Local\audioooSwitcher\AudioSwitcherApp\obj\Debug\net8.0-windows\AudioSwitcherApp.pdb
 F:\Program\Github-Project-Local\audioooSwitcher\AudioSwitcherApp\obj\Debug\net8.0-windows\AudioSwitcherApp.genruntimeconfig.cache
 F:\Program\Github-Project-Local\audioooSwitcher\AudioSwitcherApp\obj\Debug\net8.0-windows\ref\AudioSwitcherApp.dll
+F:\Program\Github-Project-Local\audioooSwitcher\AudioSwitcherApp\bin\Debug\net8.0-windows\wwwroot\app.js
+F:\Program\Github-Project-Local\audioooSwitcher\AudioSwitcherApp\bin\Debug\net8.0-windows\wwwroot\style.css
