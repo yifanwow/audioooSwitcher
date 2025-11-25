@@ -25,3 +25,6 @@ Thumbs.db
 # NuGet packages
 *.nupkg
 packages/
+
+# Node.js dependencies
+node_modules/

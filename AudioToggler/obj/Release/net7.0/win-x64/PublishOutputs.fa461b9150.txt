@@ -1,2 +1,0 @@
-F:\Program\Github-Project-Local\audioooSwitcher\AudioToggler\bin\Release\net7.0\win-x64\publish\AudioToggler.pdb
-F:\Program\Github-Project-Local\audioooSwitcher\AudioToggler\bin\Release\net7.0\win-x64\publish\AudioToggler.exe
