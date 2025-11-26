@@ -4,50 +4,30 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>音频切换生成器</title>
-    <!-- 引入 Tailwind CSS CDN -->
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="./styles.css" />
   </head>
 
   <body>
     <div class="container-wrapper">
-      <header
-        class="flex items-center justify-between mb-6 border-b border-gray-700 pb-4"
-      >
+      <header class="flex items-center justify-between mb-6 border-b border-gray-700 pb-4">
         <h1 class="text-2xl font-semibold flex items-center text-white">
-          <!-- macOS SF Symbols 风格图标 (音量) -->
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="w-7 h-7 mr-3 text-blue-400"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 mr-3 text-blue-400"
+            viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
             <path d="M15.54 8.46a5 5 0 010 7.08"></path>
           </svg>
           音频切换生成器
         </h1>
-        <!-- 刷新按钮 (圆角、悬停效果) -->
-        <button
-          id="btn-refresh"
+
+        <button id="btn-refresh"
           class="p-2 rounded-full text-gray-400 hover:text-white hover:bg-white/10 transition"
-          title="刷新设备列表"
-        >
-          <svg
-            id="refresh-icon"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            class="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
+          title="刷新设备列表">
+          <svg id="refresh-icon" xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 2v6h-6"></path>
             <path d="M3 12a9 9 0 0114-7.5L21 8"></path>
             <path d="M3 22v-6h6"></path>
@@ -62,20 +42,13 @@
 
       <div id="list-container" class="mb-6">
         <div id="loading-message" class="text-center text-gray-500 py-4">
-          <svg
-            class="w-5 h-5 inline mr-2 align-middle text-gray-500 spin-animation"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
+          <svg class="w-5 h-5 inline mr-2 align-middle text-gray-500 spin-animation"
+            xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
             <polyline points="23 4 23 10 17 10"></polyline>
             <path d="M20.49 15a9 9 0 1 1 .8-5.34"></path>
           </svg>
-
           正在扫描设备...
         </div>
       </div>
@@ -84,268 +57,12 @@
         生成切换脚本 (请至少选2个)
       </button>
 
-      <!-- 状态/错误信息区域 -->
-      <p
-        id="status-msg"
-        class="text-xs text-gray-500 mt-3 text-right transition-colors duration-300"
-      >
+      <p id="status-msg"
+        class="text-xs text-gray-500 mt-3 text-right transition-colors duration-300">
         等待 C# 后端连接...
       </p>
     </div>
 
-    <!-- 渲染进程 JavaScript 逻辑 -->
-    <script>
-      // 确保 window.api 存在（Electron Preload 脚本提供）
-      if (typeof window.api === "undefined") {
-        console.error(
-          "Electron API (window.api) not found. This app requires an Electron preload script."
-        );
-        // 模拟 API for standalone testing if needed
-        window.api = {
-          invokeBackend: (msg) => {
-            console.log("Simulated invokeBackend:", msg);
-          },
-          generateScript: (names) => {
-            console.log("Simulated generateScript:", names);
-          },
-          onBackendResponse: (callback) => {
-            setTimeout(
-              () =>
-                callback({
-                  success: true,
-                  data: [
-                    { id: "1", name: "扬声器 (Realtek Audio)" },
-                    { id: "2", name: "Headphones (Audeze Maxwell)" },
-                    { id: "3", name: "显示器音频 (NVIDIA)" },
-                  ],
-                }),
-              1500
-            );
-          },
-          onScriptGenerated: (callback) => {},
-        };
-      }
-
-      let allDevices = [];
-      let selectedDevices = []; // 存储选中的设备对象 { id, name }
-      let isGenerating = false;
-      let isRefreshing = false;
-
-      const listContainer = document.getElementById("list-container");
-      const genButton = document.getElementById("btn-gen");
-      const refreshButton = document.getElementById("btn-refresh");
-      const refreshIcon = document.getElementById("refresh-icon");
-      const statusMessage = document.getElementById("status-msg");
-
-      // --- 模态框函数 ---
-      function showModal(title, message, isError = false) {
-        const iconSvg = isError
-          ? '<svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 mx-auto text-red-500 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'
-          : '<svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 mx-auto text-green-500 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>';
-
-        const modalHtml = `
-                <div class="modal-overlay">
-                    <div class="modal-content">
-                        ${iconSvg}
-                        <h3 class="text-xl font-medium mb-3">${title}</h3>
-                        <p class="text-sm text-gray-400 break-all mb-6">${message}</p>
-                        <button id="modal-close-btn" class="w-full py-2 rounded-lg text-lg font-medium bg-blue-500 hover:bg-blue-600 transition">确定</button>
-                    </div>
-                </div>
-            `;
-
-        const existingModal = document.querySelector(".modal-overlay");
-        if (existingModal) existingModal.remove();
-
-        document.body.insertAdjacentHTML("beforeend", modalHtml);
-        document
-          .getElementById("modal-close-btn")
-          .addEventListener("click", () => {
-            document.querySelector(".modal-overlay").remove();
-          });
-      }
-
-      // --- UI 更新函数 ---
-      function updateButtonState() {
-        const count = selectedDevices.length;
-        const isActive = count >= 2 && !isGenerating;
-
-        genButton.disabled = !isActive;
-        genButton.textContent = isGenerating
-          ? "生成中..."
-          : count >= 2
-          ? `生成切换脚本 (${count} 个设备)`
-          : "生成切换脚本 (请至少选2个)";
-      }
-
-      function renderList(deviceList) {
-        allDevices = deviceList || [];
-        // 保留已选中设备的选中状态 (基于ID)
-        const newSelected = selectedDevices.filter((d) =>
-          allDevices.some((ad) => ad.id === d.id)
-        );
-        selectedDevices = newSelected;
-
-        listContainer.innerHTML = "";
-
-        if (allDevices.length === 0) {
-          listContainer.innerHTML =
-            '<div class="text-center text-gray-500 py-4">未找到任何活跃的音频输出设备。</div>';
-          statusMessage.textContent = `未发现设备。`;
-          return;
-        }
-
-        allDevices.forEach((device) => {
-          const isChecked = selectedDevices.some((d) => d.id === device.id);
-          const itemHtml = `
-                    <label class="device-item-label" for="dev-${device.id}">
-                        <input type="checkbox" id="dev-${
-                          device.id
-                        }" class="device-checkbox" 
-                               data-id="${device.id}" data-name="${
-            device.name
-          }" ${isChecked ? "checked" : ""} />
-                        <span class="text-sm font-light truncate">${
-                          device.name
-                        }</span>
-                    </label>
-                `;
-          listContainer.innerHTML += itemHtml;
-        });
-
-        // 重新绑定事件监听器
-        listContainer
-          .querySelectorAll(".device-checkbox")
-          .forEach((checkbox) => {
-            checkbox.addEventListener("change", handleDeviceSelection);
-          });
-
-        statusMessage.textContent = `发现 ${allDevices.length} 个设备。`;
-        updateButtonState();
-      }
-
-      function handleDeviceSelection(event) {
-        const id = event.target.dataset.id;
-        const name = event.target.dataset.name;
-        const isChecked = event.target.checked;
-
-        if (isChecked) {
-          if (!selectedDevices.some((d) => d.id === id)) {
-            selectedDevices.push({ id, name });
-          }
-        } else {
-          selectedDevices = selectedDevices.filter((d) => d.id !== id);
-        }
-        updateButtonState();
-      }
-
-      // --- IPC 通信函数 ---
-      function refreshDevices() {
-        if (isRefreshing) return;
-        isRefreshing = true;
-
-        statusMessage.textContent = "正在请求 C# 后端扫描设备...";
-        statusMessage.classList.remove("text-red-500");
-        statusMessage.classList.add("text-gray-500");
-
-        // 显示加载状态
-        listContainer.innerHTML = `
-  <div id="loading-message" class="text-center text-gray-500 py-4">
-    <svg
-      class="w-5 h-5 inline mr-2 align-middle text-gray-500 spin-animation"
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-    >
-      <polyline points="23 4 23 10 17 10"></polyline>
-      <path d="M20.49 15a9 9 0 1 1 .8-5.34"></path>
-    </svg>
-    正在扫描设备...
-  </div>`;
-
-        // 刷新按钮动画
-        refreshIcon.classList.add("spin-animation");
-        refreshButton.disabled = true;
-        updateButtonState();
-
-        window.api.invokeBackend({ action: "getDevices" });
-      }
-
-      function generateScript() {
-        if (selectedDevices.length < 2) {
-          showModal("错误", "请至少选择 2 个音频设备以生成切换脚本。", true);
-          return;
-        }
-
-        isGenerating = true;
-        statusMessage.textContent = "正在生成脚本...";
-        updateButtonState();
-
-        const selectedNames = selectedDevices.map((d) => d.name);
-        window.api.generateScript(selectedNames);
-      }
-
-      // --- 监听 Main 进程响应 ---
-      window.api.onBackendResponse((response) => {
-        isRefreshing = false;
-        refreshIcon.classList.remove("spin-animation");
-        refreshButton.disabled = false;
-
-        if (response.success) {
-          renderList(response.data);
-        } else {
-          statusMessage.textContent = `❌ C# 后端错误: ${response.error}`;
-          statusMessage.classList.remove("text-gray-500");
-          statusMessage.classList.add("text-red-500");
-          renderList([]); // 清空列表
-          // 在 UI 上显示一个警告
-          showModal(
-            "设备加载失败",
-            `无法连接或获取设备列表：${response.error}`,
-            true
-          );
-        }
-      });
-
-      window.api.onScriptGenerated((result) => {
-        isGenerating = false;
-        updateButtonState();
-
-        if (result.success) {
-          const fileName = result.path.split(/[\\/]/).pop();
-          statusMessage.textContent = `✅ 脚本生成成功！路径: ${fileName}`;
-          statusMessage.classList.remove("text-red-500");
-          statusMessage.classList.add("text-green-500");
-          showModal("脚本已生成", `切换脚本已成功保存到:\n${result.path}`);
-        } else {
-          statusMessage.textContent = `❌ 生成失败: ${result.error.substring(
-            0,
-            50
-          )}...`;
-          statusMessage.classList.remove("text-gray-500");
-          statusMessage.classList.add("text-red-500");
-          showModal(
-            "生成失败",
-            `脚本生成失败，请检查日志:\n${result.error}`,
-            true
-          );
-        }
-      });
-
-      // --- 绑定事件 ---
-      refreshButton.addEventListener("click", refreshDevices);
-      genButton.addEventListener("click", generateScript);
-
-      // 页面加载完成后立即刷新
-      window.addEventListener("DOMContentLoaded", () => {
-        setTimeout(() => {
-          refreshDevices();
-        }, 3000);
-      });
-    </script>
+    <script src="./app.js"></script>
   </body>
 </html>
